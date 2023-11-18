@@ -13,11 +13,12 @@ interface Props {
     | "link"
     | null
     | undefined;
+  className?: string;
 }
 
-const MyButton = ({ onClick, children, variant }: Props) => {
+const MyButton = ({ onClick, children, variant, className }: Props) => {
   return (
-    <Button variant={variant} onClick={onClick}>
+    <Button className={className} variant={variant} onClick={onClick}>
       {children}
     </Button>
   );

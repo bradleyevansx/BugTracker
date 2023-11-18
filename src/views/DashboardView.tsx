@@ -25,8 +25,11 @@ const DashboardView = () => {
   }, []);
 
   return (
-    <div style={{ width: "95%", height: "95%" }}>
-      <ScrollArea className="whitespace-nowrap rounded-md border h-full">
+    <div
+      style={{ width: "95%", height: "95%" }}
+      className="flex justify-center items-center"
+    >
+      <ScrollArea className="whitespace-nowrap rounded-md border">
         <div className="flex w-max space-x-4 p-4">
           {projects.map((project) => (
             <ProjectDisplay key={project.id} project={project}></ProjectDisplay>

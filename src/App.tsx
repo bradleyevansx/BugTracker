@@ -11,6 +11,7 @@ import LoginView from "./views/LoginView";
 import { supabase } from ".";
 import IndexView from "./views/IndexView";
 import DashboardView from "./views/DashboardView";
+import ProjectView from "./views/ProjectView";
 
 interface Props {
   children: ReactElement;
@@ -22,7 +23,6 @@ const RequireAuth = ({ children }: Props) => {
   useEffect(() => {
     const checkAuth = async () => {
       const data = await supabase.auth.getSession();
-      console.log(data);
       if (!data.data.session) {
         navigate("/login");
       }
@@ -52,6 +52,14 @@ function App() {
             element={
               <RequireAuth>
                 <DashboardView />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/project/:projectId"
+            element={
+              <RequireAuth>
+                <ProjectView />
               </RequireAuth>
             }
           />

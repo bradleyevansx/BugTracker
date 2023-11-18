@@ -1,15 +1,18 @@
 import { useBugs } from "@/hooks/useBugs";
 import { Tables } from "..";
 import Heading from "./Heading";
-import Text from "./Text";
 import BugPreview from "./BugPreview";
 import ProjectStatsPreview from "./ProjectStatsPreview";
+import { ScrollArea } from "./ui/scroll-area";
+import MyButton from "./MyButton";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   project: Tables<"projects">;
 }
 
 const ProjectDisplay = ({ project }: Props) => {
+  const navigate = useNavigate();
   const { data, error, isLoading } = useBugs(project.id);
 
   if (isLoading) {
@@ -20,15 +23,28 @@ const ProjectDisplay = ({ project }: Props) => {
     return <div>Error: {error.message}</div>;
   }
 
+  const onClickDetailView = () => {
+    navigate(`/project/${project.id}`);
+  };
+
   return (
-    <article className="w-80 flex flex-col justify-center items-center rounded-lg border p-5 h-fit">
+    <article className="w-80 flex flex-col justify-center items-center rounded-lg border p-5 h-full">
       <Heading type="h2">{project.name}</Heading>
       <ProjectStatsPreview bugs={data}></ProjectStatsPreview>
-      {data.map((bug) => (
-        <>
-          <BugPreview bug={bug}></BugPreview>
-        </>
-      ))}
+      <ScrollArea className="h-96 w-full">
+        {data.map((bug) => (
+          <>
+            <BugPreview bug={bug}></BugPreview>
+          </>
+        ))}
+      </ScrollArea>
+      <MyButton
+        className="mt-5 w-full"
+        variant={"secondary"}
+        onClick={onClickDetailView}
+      >
+        Detail View
+      </MyButton>
     </article>
   );
 };
