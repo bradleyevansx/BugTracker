@@ -14,7 +14,6 @@ const DashboardView = () => {
           console.error("Error fetching projects:", error.message);
           return;
         }
-        console.log(data);
         setProjects(data);
       } catch (error) {
         console.error("Error during data fetching:", error);

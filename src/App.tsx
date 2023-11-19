@@ -12,6 +12,9 @@ import { supabase } from ".";
 import IndexView from "./views/IndexView";
 import DashboardView from "./views/DashboardView";
 import ProjectView from "./views/ProjectView";
+import MyNavButton from "./components/MyNavButton";
+import SignUpView from "./views/SignUpView";
+import BugDetailView from "./views/BugDetailView";
 
 interface Props {
   children: ReactElement;
@@ -31,7 +34,12 @@ const RequireAuth = ({ children }: Props) => {
     checkAuth();
   }, [children]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <MyNavButton></MyNavButton>
+      {children}
+    </>
+  );
 };
 
 function App() {
@@ -63,7 +71,16 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route
+            path="/bug/:bugId"
+            element={
+              <RequireAuth>
+                <BugDetailView />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<LoginView />} />
+          <Route path="/signup" element={<SignUpView />} />
         </Routes>
       </Router>
       <Toaster />

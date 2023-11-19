@@ -5,24 +5,34 @@ import { useState } from "react";
 import MyButton from "@/components/MyButton";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye } from "lucide-react";
-import { User } from "@supabase/supabase-js";
 import { isEmailValid } from "@/helpers/emailHelpers";
+import Text from "@/components/Text";
+import { useNavigate } from "react-router-dom";
+
 const SignUpView = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordDuplicate, setPasswordDuplicate] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    passwordDuplicate: "",
+    firstName: "",
+    lastName: "",
+    passwordIsShown: false,
+  });
 
-  const [passwordIsShown, setPasswordIsShown] = useState(false);
-
-  const setNewState = (newValue: string, setter: (arg: string) => void) => {
-    setter(newValue);
+  const setNewState = (field: string, value: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
   };
 
   const handleSignUpAsync = async () => {
+    const { email, password, passwordDuplicate, firstName, lastName } =
+      formData;
+
     if (!(email && password && passwordDuplicate && firstName && lastName)) {
       resetFields();
       toast({
@@ -32,7 +42,8 @@ const SignUpView = () => {
       });
       return;
     }
-    if (password != passwordDuplicate) {
+
+    if (password !== passwordDuplicate) {
       resetFields();
       toast({
         title: "Warning",
@@ -41,35 +52,24 @@ const SignUpView = () => {
       });
       return;
     }
+
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
-    });
-    if (error) {
-      console.error("Authentication error:", error.message);
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-    if (data.user) {
-      insertNewUserAsync(data.user);
-    }
-  };
-
-  const insertNewUserAsync = async (user: User) => {
-    const { data, error } = await supabase.from("users").upsert([
-      {
-        id: user?.id,
-        email: email,
-        first_name: firstName,
-        last_name: lastName,
+      options: {
+        data: {
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+        },
       },
-    ]);
+    });
+
+    if (data.session) {
+      navigate("/dashboard");
+    }
+
     if (error) {
-      console.error("Authentication error:", error.message);
       toast({
         title: "Authentication Error",
         description: error.message,
@@ -77,27 +77,26 @@ const SignUpView = () => {
       });
       return;
     }
-    console.log(data);
   };
 
   const getPasswordsValid = () => {
-    //add validation for passwords being strong enough
-
-    return password === passwordDuplicate;
+    return formData.password === formData.passwordDuplicate;
   };
 
   const resetFields = () => {
-    setEmail("");
-    setPassword("");
-    setPasswordDuplicate("");
-    setFirstName("");
-    setLastName("");
-    setPasswordIsShown(false);
+    setFormData({
+      email: "",
+      password: "",
+      passwordDuplicate: "",
+      firstName: "",
+      lastName: "",
+      passwordIsShown: false,
+    });
   };
 
   return (
     <>
-      <article className=" w-80 flex flex-col justify-center items-center rounded-lg border p-5">
+      <article className=" w-96 flex flex-col justify-center items-center rounded-lg border p-5">
         <div className="border-b mb-2">
           <Heading type="h2">Sign Up</Heading>
         </div>
@@ -105,60 +104,65 @@ const SignUpView = () => {
           <MyInput
             width={"100%"}
             type="text"
-            value={firstName}
+            value={formData.firstName}
             label="First Name"
-            onChange={(newFirstName) => {
-              setNewState(newFirstName, setFirstName);
-            }}
+            onChange={(newFirstName) => setNewState("firstName", newFirstName)}
           ></MyInput>
           <MyInput
             width={"100%"}
             type="text"
-            value={lastName}
+            value={formData.lastName}
             label="Last Name"
-            onChange={(newLastName) => {
-              setNewState(newLastName, setLastName);
-            }}
+            onChange={(newLastName) => setNewState("lastName", newLastName)}
           ></MyInput>
           <div className="border-b m-2"></div>
           <MyInput
-            isDanger={isEmailValid(email) ? "false" : "true"}
+            isDanger={isEmailValid(formData.email) ? "false" : "true"}
             width={"100%"}
             type="text"
-            value={email}
+            value={formData.email}
             label="Email"
-            onChange={(newEmail) => {
-              setNewState(newEmail, setEmail);
-            }}
+            onChange={(newEmail) => setNewState("email", newEmail)}
           ></MyInput>
           <MyInput
             width={"100%"}
-            type={passwordIsShown ? "text" : "password"}
-            value={password}
-            label="Password"
-            onChange={(newPassword) => {
-              setNewState(newPassword, setPassword);
-            }}
+            type={formData.passwordIsShown ? "text" : "password"}
+            value={formData.password}
+            label={
+              <div className="flex items-center gap-2">
+                Password
+                <Eye
+                  className="hover:cursor-pointer"
+                  onClick={() =>
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      passwordIsShown: !prevData.passwordIsShown,
+                    }))
+                  }
+                ></Eye>
+              </div>
+            }
+            onChange={(newPassword) => setNewState("password", newPassword)}
             isDanger={getPasswordsValid() ? "false" : "true"}
           ></MyInput>
           <MyInput
             width={"100%"}
-            type={passwordIsShown ? "text" : "password"}
-            value={passwordDuplicate}
+            type={formData.passwordIsShown ? "text" : "password"}
+            value={formData.passwordDuplicate}
             label="Confirm Password"
-            onChange={(newPasswordDuplicate) => {
-              setNewState(newPasswordDuplicate, setPasswordDuplicate);
-            }}
+            onChange={(newPasswordDuplicate) =>
+              setNewState("passwordDuplicate", newPasswordDuplicate)
+            }
             isDanger={getPasswordsValid() ? "false" : "true"}
           ></MyInput>
         </div>
         <div className="flex justify-between w-full">
-          <MyButton
-            variant={"ghost"}
-            onClick={() => setPasswordIsShown(!passwordIsShown)}
-          >
-            <Eye></Eye>
-          </MyButton>
+          <Text type="p">
+            Already have an account?{" "}
+            <a className="text-blue-600" href="/login">
+              Login
+            </a>
+          </Text>
           <MyButton onClick={handleSignUpAsync}>Sign Up</MyButton>
         </div>
       </article>

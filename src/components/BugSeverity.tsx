@@ -17,10 +17,7 @@ const getSeverityIcon = (severity: string) => {
 
 const BugSeverity = ({ severity }: Props) => {
   return (
-    <div className="flex gap-2 items-center">
-      {getSeverityIcon(severity)}
-      {severity}
-    </div>
+    <div className="flex gap-2 items-center">{getSeverityIcon(severity)}</div>
   );
 };
 
