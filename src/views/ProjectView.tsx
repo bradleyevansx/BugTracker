@@ -23,11 +23,15 @@ const ProjectView = ({}) => {
   const { projectsData, bugsData, bugsLoading, projectsLoading, error } =
     useFullProject(projectId);
 
-  const unassignedBugsCount = bugsData.filter(
+  if (bugsLoading || projectsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const unassignedBugsCount = bugsData!.filter(
     (x) => x.assigned_to === null
   ).length;
 
-  const totalUsersResolvingBugs = bugsData
+  const totalUsersResolvingBugs = bugsData!
     .filter((x) => {
       return x.assigned_to !== null;
     })
@@ -38,11 +42,11 @@ const ProjectView = ({}) => {
   const uniqueUserIds = [...new Set(totalUsersResolvingBugs)].length;
 
   const statusRatio = () => {
-    const resolvedInProgressCount = bugsData.filter((x) => {
+    const resolvedInProgressCount = bugsData!.filter((x) => {
       return x.status === "Resolved" || x.status === "In Progress";
     }).length;
 
-    const openCount = bugsData.filter((x) => {
+    const openCount = bugsData!.filter((x) => {
       return x.status === "Open";
     }).length;
 
@@ -51,7 +55,7 @@ const ProjectView = ({}) => {
   };
 
   if (error) {
-    return <div>{error}</div>;
+    return <div>{error.message}</div>;
   }
 
   if (projectsData)
@@ -89,7 +93,7 @@ const ProjectView = ({}) => {
           <CardContent>
             <div className="flex gap-5">
               <ScrollArea className="h-96 border rounded-lg">
-                {bugsData.map((bug) => (
+                {bugsData!.map((bug) => (
                   <BugCard key={bug.id} bug={bug}></BugCard>
                 ))}
               </ScrollArea>
@@ -117,7 +121,7 @@ const ProjectView = ({}) => {
                     </Text>
 
                     <Text type="p">
-                      {"Total bugs: " + bugsData.length.toString()}
+                      {"Total bugs: " + bugsData!.length.toString()}
                     </Text>
                     <Text type="p">
                       {"Unassigned bugs: " + unassignedBugsCount.toString()}

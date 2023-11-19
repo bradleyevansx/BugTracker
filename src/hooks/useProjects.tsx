@@ -1,38 +1,24 @@
-import { useEffect, useState } from "react";
-import { Tables, supabase } from "..";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "..";
 
 function useProjects(projectId: string) {
-  const [data, setData] = useState<Tables<"projects"> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  const fetchProjects = async () => {
+    const { data, error } = await supabase
+      .from("projects")
+      .select()
+      .eq("id", projectId);
 
-  useEffect(() => {
-    const fetchProjectsAsync = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("projects")
-          .select()
-          .eq("id", projectId);
-        if (error) {
-          throw new Error(`Error fetching projects: ${error.message}`);
-        }
+    if (error) {
+      throw new Error(`Error fetching projects: ${error.message}`);
+    }
 
-        setData(data[0]);
-      } catch (error) {
-        setError(new Error(`Error fetching projects: ${error}`));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProjectsAsync();
-  }, [projectId]);
-
-  return {
-    data,
-    isLoading,
-    error,
+    return data ? data[0] : null;
   };
+
+  return useQuery({
+    queryKey: ["projects", projectId],
+    queryFn: fetchProjects,
+  });
 }
 
 export default useProjects;

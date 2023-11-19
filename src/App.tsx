@@ -15,7 +15,8 @@ import ProjectView from "./views/ProjectView";
 import MyNavButton from "./components/MyNavButton";
 import SignUpView from "./views/SignUpView";
 import BugDetailView from "./views/BugDetailView";
-
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 interface Props {
   children: ReactElement;
 }
@@ -41,49 +42,52 @@ const RequireAuth = ({ children }: Props) => {
     </>
   );
 };
-
+const queryClient = new QueryClient();
 function App() {
   return (
     <>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <IndexView />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <RequireAuth>
-                <DashboardView />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/project/:projectId"
-            element={
-              <RequireAuth>
-                <ProjectView />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/bug/:bugId"
-            element={
-              <RequireAuth>
-                <BugDetailView />
-              </RequireAuth>
-            }
-          />
-          <Route path="/login" element={<LoginView />} />
-          <Route path="/signup" element={<SignUpView />} />
-        </Routes>
-      </Router>
-      <Toaster />
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <IndexView />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <RequireAuth>
+                  <DashboardView />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/project/:projectId"
+              element={
+                <RequireAuth>
+                  <ProjectView />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/bug/:bugId"
+              element={
+                <RequireAuth>
+                  <BugDetailView />
+                </RequireAuth>
+              }
+            />
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/signup" element={<SignUpView />} />
+          </Routes>
+        </Router>
+        <Toaster />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </>
   );
 }

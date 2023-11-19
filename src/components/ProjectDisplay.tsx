@@ -6,7 +6,6 @@ import ProjectStatsPreview from "./ProjectStatsPreview";
 import { ScrollArea } from "./ui/scroll-area";
 import MyButton from "./MyButton";
 import { useNavigate } from "react-router-dom";
-import { Loader2Icon } from "lucide-react";
 
 interface Props {
   project: Tables<"projects">;
@@ -15,6 +14,10 @@ interface Props {
 const ProjectDisplay = ({ project }: Props) => {
   const navigate = useNavigate();
   const { data, error, isLoading } = useBugs(project.id);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -27,9 +30,9 @@ const ProjectDisplay = ({ project }: Props) => {
   return (
     <article className="w-80 flex flex-col justify-center items-center rounded-lg border p-5 h-full">
       <Heading type="h2">{project.name}</Heading>
-      <ProjectStatsPreview bugs={data}></ProjectStatsPreview>
+      <ProjectStatsPreview bugs={data!}></ProjectStatsPreview>
       <ScrollArea className="h-96 w-full">
-        {data.map((bug) => (
+        {data!.map((bug) => (
           <BugPreview key={bug.id} bug={bug}></BugPreview>
         ))}
       </ScrollArea>
