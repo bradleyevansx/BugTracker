@@ -1,1 +1,1 @@
-export type severity = "High" | "Medium" | "Low";
+export const severity = ["High", "Medium", "Low"];

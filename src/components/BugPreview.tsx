@@ -1,7 +1,7 @@
 import { trimString } from "@/helpers/stringHelpers";
 import { Tables } from "..";
 import Text from "./Text";
-import BugStatusIcon from "./BugStatusIcon";
+import BugStatus from "./BugStatus";
 import MyButton from "./MyButton";
 import { useNavigate } from "react-router-dom";
 
@@ -22,7 +22,7 @@ const BugPreview = ({ bug }: Props) => {
       onClick={handleClick}
     >
       <Text type="p">{trimString(bug.title, 25)}</Text>
-      <BugStatusIcon status={bug.status}></BugStatusIcon>
+      <BugStatus status={bug.status}></BugStatus>
     </MyButton>
   );
 };

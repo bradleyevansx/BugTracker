@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 interface Props {
   onClick?: () => void | Promise<void>;
   children: ReactNode;
+  disabled?: boolean;
   variant?:
     | "default"
     | "destructive"
@@ -16,9 +17,20 @@ interface Props {
   className?: string;
 }
 
-const MyButton = ({ onClick, children, variant, className }: Props) => {
+const MyButton = ({
+  onClick,
+  children,
+  variant,
+  className,
+  disabled = false,
+}: Props) => {
   return (
-    <Button className={className} variant={variant} onClick={onClick}>
+    <Button
+      disabled={disabled}
+      className={className}
+      variant={variant}
+      onClick={onClick}
+    >
       {children}
     </Button>
   );

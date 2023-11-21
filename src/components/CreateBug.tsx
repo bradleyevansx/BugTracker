@@ -4,6 +4,7 @@ import MyDropdown from "./MyDropdown";
 import MyCheckbox from "./MyCheckbox";
 import MyButton from "./MyButton";
 import { supabase } from "..";
+import { useInsert } from "@/hooks/useInsert";
 
 interface Props {
   onComplete: (val: boolean) => void;
@@ -16,21 +17,30 @@ const CreateBug = ({ onComplete, projectId }: Props) => {
   const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState("");
 
+  const { mutate } = useInsert("bugs");
+
   const insertBug = async () => {
     //handle situation where not all fields are filled out
 
     const user = await supabase.auth.getSession();
 
-    const { error } = await supabase.from("bugs").insert({
-      title: title,
-      description: description,
-      severity: severity,
-      assigned_to: assignedToSelf ? user.data.session?.user.id : null,
-      status: assignedToSelf ? "In Progress" : "Open",
-      project_id: projectId,
-    });
+    mutate(
+      {
+        title: title,
+        description: description,
+        severity: severity,
+        assigned_to: assignedToSelf ? user.data.session?.user.id : null,
+        status: assignedToSelf ? "In Progress" : "Open",
+        project_id: projectId,
+        created_by: user.data.session?.user.id,
+      },
+      {
+        onSuccess() {
+          onComplete(false);
+        },
+      }
+    );
   };
-  supabase.from("bugs");
 
   return (
     <div className="flex flex-col gap-5">
@@ -60,7 +70,6 @@ const CreateBug = ({ onComplete, projectId }: Props) => {
         ></MyCheckbox>
         <MyButton
           onClick={() => {
-            onComplete(false);
             insertBug();
           }}
         >

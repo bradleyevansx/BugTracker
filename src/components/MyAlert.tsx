@@ -1,10 +1,6 @@
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -25,7 +21,7 @@ const MyAlert = ({ heading, children, isShown, onClose }: Props) => {
       <AlertDialogContent className="w-fit">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center mx-24">
               {heading}
               <MyButton
                 onClick={() => onClose(false)}

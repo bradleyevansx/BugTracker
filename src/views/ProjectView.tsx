@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import useFullProject from "@/hooks/useFullProject";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { PieChart, Pie, Tooltip, Cell } from "recharts";
 
 const ProjectView = ({}) => {
   const { projectId } = useParams();
@@ -30,28 +31,54 @@ const ProjectView = ({}) => {
   const unassignedBugsCount = bugsData!.filter(
     (x) => x.assigned_to === null
   ).length;
+  const assignedBugsCount = bugsData!.filter(
+    (x) => x.assigned_to !== null
+  ).length;
 
-  const totalUsersResolvingBugs = bugsData!
-    .filter((x) => {
-      return x.assigned_to !== null;
-    })
-    .map((x) => {
-      return x.assigned_to;
-    });
+  const openBugsCount = bugsData?.filter((x) => {
+    return x.status === "Open";
+  }).length;
+  const inProgressBugsCount = bugsData?.filter((x) => {
+    return x.status === "In Progress";
+  }).length;
+  const resolvedBugsCount = bugsData?.filter((x) => {
+    return x.status === "Resolved";
+  }).length;
 
-  const uniqueUserIds = [...new Set(totalUsersResolvingBugs)].length;
+  const resolvedUnresolvedData = [
+    {
+      name: "Unassigned",
+      value: unassignedBugsCount,
+    },
+    {
+      name: "Assigned",
+      value: assignedBugsCount,
+    },
+  ];
+
+  const overallStatusData = [
+    {
+      name: "Open",
+      value: openBugsCount,
+    },
+    {
+      name: "In Progress",
+      value: inProgressBugsCount,
+    },
+    {
+      name: "Resolved",
+      value: resolvedBugsCount,
+    },
+  ];
+
+  const statusColors = ["#DC143C", "#FF4500", "#33CC66"];
+  const unresolvedResolvedColors = ["#DC143C", "#33CC66"];
 
   const statusRatio = () => {
-    const resolvedInProgressCount = bugsData!.filter((x) => {
-      return x.status === "Resolved" || x.status === "In Progress";
-    }).length;
-
-    const openCount = bugsData!.filter((x) => {
-      return x.status === "Open";
-    }).length;
-
-    const value = resolvedInProgressCount / openCount;
-    return value;
+    if (resolvedBugsCount && inProgressBugsCount && openBugsCount) {
+      const value = (resolvedBugsCount + inProgressBugsCount) / openBugsCount;
+      return value;
+    }
   };
 
   if (error) {
@@ -97,7 +124,7 @@ const ProjectView = ({}) => {
                   <BugCard key={bug.id} bug={bug}></BugCard>
                 ))}
               </ScrollArea>
-              <div className="w-1/2 flex flex-col gap-5">
+              <div className="w-96 flex flex-col gap-5">
                 <Card>
                   <CardHeader>
                     <div className="w-fit mx-auto border-b">
@@ -108,30 +135,54 @@ const ProjectView = ({}) => {
                     <Text type="p">{projectsData.description}</Text>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardHeader>
-                    <div className="w-fit mx-auto border-b">
-                      <Heading type="h3">Other Project Info</Heading>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Text type="p">
-                      {"Created On: " +
-                        new Date(projectsData.created_at!).toLocaleString()}
-                    </Text>
-
-                    <Text type="p">
-                      {"Total bugs: " + bugsData!.length.toString()}
-                    </Text>
-                    <Text type="p">
-                      {"Unassigned bugs: " + unassignedBugsCount.toString()}
-                    </Text>
-                    <Text type="p">
-                      {"Employees involed in resolving bugs: " +
-                        uniqueUserIds.toString()}
-                    </Text>
-                  </CardContent>
-                </Card>
+                <div className="flex flex-col items-center w-fit">
+                  <Heading type="h4">Overall Status</Heading>
+                  <PieChart width={215} height={215}>
+                    <Pie
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      data={overallStatusData}
+                      label
+                    >
+                      {overallStatusData.map((data, index) => (
+                        <Cell
+                          onClick={() => {
+                            //add navigation to Resolved, In Progress, or Open bugs for specific project
+                            console.log(data);
+                          }}
+                          key={`cell-${index}`}
+                          fill={statusColors[index]}
+                        ></Cell>
+                      ))}
+                    </Pie>
+                    <Tooltip></Tooltip>
+                  </PieChart>
+                </div>
+                <div className="flex flex-col items-center w-fit">
+                  <Heading type="h4">Unresolved to Resolved</Heading>
+                  <PieChart width={215} height={215}>
+                    <Pie
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      data={resolvedUnresolvedData}
+                      label
+                    >
+                      {resolvedUnresolvedData.map((data, index) => (
+                        <Cell
+                          onClick={() => {
+                            //add navigation to un assigned projects on click of entire pie to assign to users
+                            console.log(data);
+                          }}
+                          key={`cell-${index}`}
+                          fill={unresolvedResolvedColors[index]}
+                        ></Cell>
+                      ))}
+                    </Pie>
+                    <Tooltip></Tooltip>
+                  </PieChart>
+                </div>
               </div>
             </div>
           </CardContent>

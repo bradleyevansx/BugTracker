@@ -18,5 +18,5 @@ export function useBug(bugId: string) {
 
     return data;
   };
-  return useQuery({ queryKey: ["bug", bugId], queryFn: fetchBug });
+  return useQuery({ queryKey: ["bugs", bugId], queryFn: fetchBug });
 }
