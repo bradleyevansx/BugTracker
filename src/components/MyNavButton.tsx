@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/popover";
 import MyButton from "./MyButton";
 import { Milestone } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "..";
 
 const MyNavButton = () => {
@@ -21,7 +21,7 @@ const MyNavButton = () => {
         <PopoverTrigger>
           <Milestone />
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent className="flex flex-col gap-3 w-fit">
           <MyButton
             onClick={() => {
               handleNavigate("/dashboard");

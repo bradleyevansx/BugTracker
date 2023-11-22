@@ -1,5 +1,5 @@
 import Heading from "@/components/Heading";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useFullBug from "@/hooks/useFullBug";
 import Text from "@/components/Text";
@@ -14,8 +14,11 @@ import { supabase } from "..";
 import UpdateEntity, { UpdateEntityProps } from "@/components/UpdateEntity";
 import { severity } from "@/supabase/severity";
 import { status } from "@/supabase/status";
+import MyNavButton from "@/components/MyNavButton";
 
 const BugDetailView = () => {
+  const navigate = useNavigate();
+
   const [newCommentIsShown, setNewCommentIsShown] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -38,11 +41,11 @@ const BugDetailView = () => {
       console.log(x.data.session?.user.id);
     });
 
-    if (bugData) {
+    if (bugData && bugData[0].assigned_to) {
       supabase
         .from("profiles")
         .select("first_name")
-        .eq("id", userId)
+        .eq("id", bugData[0].assigned_to)
         .then((x) => {
           if (x.data) {
             setFirstName(x.data[0].first_name!);
@@ -51,7 +54,7 @@ const BugDetailView = () => {
       supabase
         .from("profiles")
         .select("last_name")
-        .eq("id", userId)
+        .eq("id", bugData[0].assigned_to)
         .then((x) => {
           if (x.data) {
             setLastName(x.data[0].last_name!);
@@ -120,7 +123,11 @@ const BugDetailView = () => {
                     <div className="border-b ">
                       <Heading type="h3">Assigned To</Heading>
                     </div>
-                    <Text type="p">{`${firstName} ${lastName}`}</Text>
+                    <Text type="p">
+                      {firstName === "" && lastName === ""
+                        ? "Needs Assignment"
+                        : `${firstName} ${lastName}`}
+                    </Text>
                   </div>
                   <div className="w-fit mx-auto flex flex-col gap-1 items-center">
                     <div className="border-b ">
@@ -157,55 +164,67 @@ const BugDetailView = () => {
                 </div>
               </div>
             </Card>
-            <Card className=" w-60 h-fit m-auto mr-5">
-              <CardHeader>
-                <div className="border-b w-fit mx-auto">
-                  <Heading type="h3">Severity</Heading>
-                </div>
-              </CardHeader>
-              <CardContent
-                className="flex flex-col items-center gap-4
-               justify-center"
+            <div className="flex flex-col justify-center gap-5">
+              <div className="flex">
+                <Card className=" w-60 h-fit m-auto mr-5">
+                  <CardHeader>
+                    <div className="border-b w-fit mx-auto">
+                      <Heading type="h3">Severity</Heading>
+                    </div>
+                  </CardHeader>
+                  <CardContent
+                    className="flex flex-col items-center gap-4
+                   justify-center"
+                  >
+                    <BugSeverity
+                      size="150px"
+                      severity={bug!.severity}
+                    ></BugSeverity>
+                    <MyButton
+                      disabled={bug?.created_by !== userId}
+                      onClick={() => {
+                        handleUpdate(severity, "severity");
+                      }}
+                    >
+                      {bug?.created_by === userId
+                        ? "Edit Severity"
+                        : "Must Have Permission"}
+                    </MyButton>
+                  </CardContent>
+                </Card>
+                <Card className=" w-60 h-fit m-auto">
+                  <CardHeader>
+                    <div className="border-b w-fit mx-auto">
+                      <Heading type="h3">Status</Heading>
+                    </div>
+                  </CardHeader>
+                  <CardContent
+                    className="flex flex-col items-center gap-4
+                    justify-center"
+                  >
+                    <BugStatus size="150px" status={bug!.status}></BugStatus>
+                    <MyButton
+                      disabled={bug?.created_by !== userId}
+                      onClick={() => {
+                        handleUpdate(status, "status");
+                      }}
+                    >
+                      {bug?.created_by === userId
+                        ? "Edit Status"
+                        : "Must Have Permission"}
+                    </MyButton>
+                  </CardContent>
+                </Card>
+              </div>
+              <MyButton
+                variant={"secondary"}
+                onClick={() => {
+                  navigate(`/project/${bug?.project_id}`);
+                }}
               >
-                <BugSeverity
-                  size="150px"
-                  severity={bug!.severity}
-                ></BugSeverity>
-                <MyButton
-                  disabled={bug?.created_by !== userId}
-                  onClick={() => {
-                    handleUpdate(severity, "severity");
-                  }}
-                >
-                  {bug?.created_by === userId
-                    ? "Edit Severity"
-                    : "Must Have Permission"}
-                </MyButton>
-              </CardContent>
-            </Card>
-            <Card className=" w-60 h-fit m-auto">
-              <CardHeader>
-                <div className="border-b w-fit mx-auto">
-                  <Heading type="h3">Status</Heading>
-                </div>
-              </CardHeader>
-              <CardContent
-                className="flex flex-col items-center gap-4
-                justify-center"
-              >
-                <BugStatus size="150px" status={bug!.status}></BugStatus>
-                <MyButton
-                  disabled={bug?.created_by !== userId}
-                  onClick={() => {
-                    handleUpdate(status, "status");
-                  }}
-                >
-                  {bug?.created_by === userId
-                    ? "Edit Status"
-                    : "Must Have Permission"}
-                </MyButton>
-              </CardContent>
-            </Card>
+                Return to Project
+              </MyButton>
+            </div>
           </div>
         </CardContent>
       </Card>

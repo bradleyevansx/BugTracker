@@ -100,12 +100,11 @@ const ProjectView = ({}) => {
             onComplete={(val) => setAddBugIsShown(val)}
           ></CreateBug>
         </MyAlert>
-        <Card className=" h-5/6 w-5/6">
+        <Card>
           <CardHeader className="flex flex-row gap-3 items-center justify-center">
             <Heading type="h1">{projectsData!.name}</Heading>
-
             <ProjectOverallStatusIndicator
-              statusRatio={statusRatio()}
+              statusRatio={statusRatio()!}
             ></ProjectOverallStatusIndicator>
             <div>
               <MyButton
@@ -118,14 +117,16 @@ const ProjectView = ({}) => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-5">
-              <ScrollArea className="h-96 border rounded-lg">
-                {bugsData!.map((bug) => (
-                  <BugCard key={bug.id} bug={bug}></BugCard>
-                ))}
-              </ScrollArea>
-              <div className="w-96 flex flex-col gap-5">
-                <Card>
+            <div className="flex flex-col gap-5">
+              <div className="flex gap-5">
+                <Card className="h-fit">
+                  <ScrollArea className="h-96 w-96">
+                    {bugsData!.map((bug) => (
+                      <BugCard key={bug.id} bug={bug}></BugCard>
+                    ))}
+                  </ScrollArea>
+                </Card>
+                <Card className="w-96 h-96">
                   <CardHeader>
                     <div className="w-fit mx-auto border-b">
                       <Heading type="h3">Project Description</Heading>
@@ -135,8 +136,12 @@ const ProjectView = ({}) => {
                     <Text type="p">{projectsData.description}</Text>
                   </CardContent>
                 </Card>
+              </div>
+              <div className="flex gap-20 justify-center">
                 <div className="flex flex-col items-center w-fit">
-                  <Heading type="h4">Overall Status</Heading>
+                  <div className="flex justify-center">
+                    <Heading type="h4">Overall Status</Heading>
+                  </div>
                   <PieChart width={215} height={215}>
                     <Pie
                       cx="50%"
@@ -160,7 +165,9 @@ const ProjectView = ({}) => {
                   </PieChart>
                 </div>
                 <div className="flex flex-col items-center w-fit">
-                  <Heading type="h4">Unresolved to Resolved</Heading>
+                  <div className="flex justify-center">
+                    <Heading type="h4">Unresolved to Resolved</Heading>
+                  </div>
                   <PieChart width={215} height={215}>
                     <Pie
                       cx="50%"
